@@ -156,8 +156,10 @@ def process_mets (mets_file,parentColl = nil)
          # puts depositor
        end
      else
-       params[@attributes[field]] << element.inner_html.gsub "\r", "\n" if @attributes.has_key? field
-       params[@singulars[field]] = element.inner_html.gsub "\r", "\n" if @singulars.has_key? field
+       # params[@attributes[field]] << element.inner_html.gsub "\r", "\n" if @attributes.has_key? field
+       # params[@singulars[field]] = element.inner_html.gsub "\r", "\n" if @singulars.has_key? field
+       params[@attributes[field]] << element.inner_html if @attributes.has_key? field
+       params[@singulars[field]] = element.inner_html if @singulars.has_key? field
      end
      # @uncapturedFields[field] += 1 unless (@attributes.has_key? field || @singulars.has_key? field)
      @unmappedFields.write(field) unless @attributes.has_key? field
