@@ -309,6 +309,10 @@ def createItem (params, depositor, parent = nil)
     @work = Publication.new(id: id)
   elsif params['resource_type'] == ["Report"]
     @work = Publication.new(id: id)
+  elsif params['resource_type'] == ["Preprint"]
+    @work = Publication.new(id: id)
+  elsif params['resource_type'] == ["Technical Report"]
+    @work = Publication.new(id: id)
   elsif params['resource_type'] == ["Working Paper"]
     @work = Publication.new(id: id)
   elsif params['resource_type'] == ["painting"]
