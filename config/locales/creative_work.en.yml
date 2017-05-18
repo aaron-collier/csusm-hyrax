@@ -1,0 +1,8 @@
+en:
+  hyrax:
+    icons:
+      creative_work:     'fa fa-file-text-o'
+    select_type:
+      creative_work:
+        name:               "Creative Work"
+        description:        "Creative work works"

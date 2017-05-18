@@ -1,0 +1,10 @@
+es:
+  hyrax:
+    icons:
+      project:     'fa fa-file-text-o'
+    select_type:
+      project:
+        # TODO: translate `human_name` into Spanish
+        name:               "Project"
+        # TODO: translate `human_name` into Spanish
+        description:        "Project trabajos"

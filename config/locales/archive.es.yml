@@ -1,0 +1,10 @@
+es:
+  hyrax:
+    icons:
+      archive:     'fa fa-file-text-o'
+    select_type:
+      archive:
+        # TODO: translate `human_name` into Spanish
+        name:               "Archive"
+        # TODO: translate `human_name` into Spanish
+        description:        "Archive trabajos"
