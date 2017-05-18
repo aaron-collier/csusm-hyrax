@@ -45,6 +45,10 @@ module CsuMetadata
       index.as :stored_searchable, :facetable
     end
 
+    property :is_part_of, predicate: ::RDF::Vocab::DC.isPartOf do |index|
+      index.as :stored_searchable, :facetable
+    end
+
     property :sponsor, predicate: ::RDF::Vocab::MARCRelators.spn do |index|
       index.as :stored_searchable, :facetable
     end
@@ -54,6 +58,10 @@ module CsuMetadata
     end
 
     property :time_period, predicate: ::RDF::Vocab::DC.temporal do |index|
+      index.as :stored_searchable, :facetable
+    end
+
+    property :extent, predicate: ::RDF::Vocab::DC.extent do |index|
       index.as :stored_searchable, :facetable
     end
 

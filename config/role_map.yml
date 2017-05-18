@@ -1,6 +1,6 @@
 development:
-  archivist:
-    - archivist1@example.com
+  admin:
+    - acollier@calstate.edu
 
 test:
   archivist:

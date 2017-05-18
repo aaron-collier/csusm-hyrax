@@ -1,0 +1,7 @@
+2017-05-18 10:32:10 - FATAL - SLF4JLogger:54 - NLNZ Logging -- org.pdfbox.cos.COSString cannot be cast to org.pdfbox.cos.COSName
+2017-05-18 10:32:10 - ERROR - MetadataExtractor:110 - NLNZ Metadata Extractor error while harvesting file: java.lang.ClassCastException
+2017-05-18 10:32:10 - ERROR - ToolBase:271 - Caught exception running tool: MetadataExtractor
+edu.harvard.hul.ois.fits.exceptions.FitsToolException: NLNZ Metadata Extractor error while harvesting file Tsui201149.pdf (org.pdfbox.cos.COSString cannot be cast to org.pdfbox.cos.COSName)
+	at edu.harvard.hul.ois.fits.tools.nlnz.MetadataExtractor.extractInfo(MetadataExtractor.java:111)
+	at edu.harvard.hul.ois.fits.tools.ToolBase.run(ToolBase.java:268)
+	at java.lang.Thread.run(Thread.java:745)

@@ -2,38 +2,49 @@ require 'rubygems'
 require 'zip'
 
 @attributes = {
-  "dc.title" => "title",
-  "dc.date" => "date_submitted", # Thesis
-  "dc.identifier.uri" => "handle", # Thesis
-  "dc.description.abstract" => "abstract", # Thesis
+  "dc.contributor" => "contributor",
+  "dc.contributor.advisor" => "advisor",
   "dc.contributor.author" => "creator",
   "dc.creator" => "creator",
-  # "dc.date.available" => "date_available", # # Thesis
-  "dc.date.issued" => "date_created",
+  "dc.date" => "date_created",
   "dc.date.created" => "date_created",
-  "dc.publisher" => "publisher",
+  "dc.date.issued" => "date_issued",
+  "dc.date.submitted" => "date_submitted",
+  "dc.identifier" => "identifier",
+  "dc.identifier.citation" => "bibliographic_citation",
+  "dc.identifier.isbn" => "identifier",
+  "dc.identifier.issn" => "identifier",
+  "dc.identifier.other" => "identifier",
+  "dc.identifier.uri" => "handle",
+  "dc.description" => "description",
+  "dc.description.abstract" => "abstract",
+  "dc.description.provenance" => "provenance",
+  "dc.description.sponsorship" => "sponsor",
+  "dc.format.extent" => "extent",
+  # "dc.format.medium" => "",
   "dc.language" => "language",
   "dc.language.iso" => "language",
+  "dc.publisher" => "publisher",
+  "dc.relation.ispartofseries" => "is_part_of",
+  "dc.relation.uri" => "related_url",
+  "dc.rights" => "rights_statement",
   "dc.subject" => "subject",
+  "dc.subject.lcc" => "identifier",
   "dc.subject.lcsh" => "keyword",
-  "dc.description" => "description",
-  "dc.description.sponsorship" => "sponsor", # Thesis
-  "dc.contributor.sponsor" => "sponsor",
-  "dc.sponsor" => "sponsor", # Newspaper
-  "dc.title.alternative" => "alternative_title", # Thesis
+  "dc.title" => "title",
+  "dc.title.alternative" => "alternative_title",
   "dc.type" => "resource_type",
-  "dc.contributor.advisor" => "advisor", # Thesis
+  "dc.type.genre" => "resource_type",
+  "dc.date.updated" => "date_modified",
+  "dc.contributor.sponsor" => "sponsor",
+  "dc.description.embargoterms" => "embargo_terms",
   "dc.advisor" => "advisor",
-  "dc.contributor" => "contributor",
-  "dc.description.provenance" => "provenance", # Thesis
-  "dc.provenance" => "provenance",
-  "dc.contributor.committeemember" => "committee_member", # Thesis
-  "dc.coverage.spatial" => "geographical_area", # Thesis
-  "dc.coverage.temporal" => "time_period", # Thesis
-  "dc.rights" => "license",
-  "dc.date.submitted" => "date_submitted",
-  "dc.identifier.citation" => "bibligraphic_citation",
-  "dc.rights.usage" => "rights_statement" # (Default) Newspaper
+  "dc.genre" => "resource_type",
+  "dc.contributor.committeemember" => "committee_member",
+  # dc.note" => "",
+  "dc.rights.license" => "license",
+  "dc.rights.usage" => "rights_statement",
+  "dc.sponsor" => "sponsor"
 }
 
 @singulars = {
@@ -145,8 +156,8 @@ def process_mets (mets_file,parentColl = nil)
          # puts depositor
        end
      else
-       params[@attributes[field]] << element.inner_html if @attributes.has_key? field
-       params[@singulars[field]] = element.inner_html if @singulars.has_key? field
+       params[@attributes[field]] << element.inner_html.gsub "\r", "\n" if @attributes.has_key? field
+       params[@singulars[field]] = element.inner_html.gsub "\r", "\n" if @singulars.has_key? field
      end
      # @uncapturedFields[field] += 1 unless (@attributes.has_key? field || @singulars.has_key? field)
      @unmappedFields.write(field) unless @attributes.has_key? field
@@ -276,8 +287,53 @@ def createItem (params, depositor, parent = nil)
     depositor = @defaultDepositor
   end
 
+
+  puts "Part of: #{params['part_of']}"
+
+  id = ActiveFedora::Noid::Service.new.mint
+
+  # Not liking this case statement but will refactor later.
+  if params['resource_type'] == ["Thesis"]
+    @work = Thesis.new(id: id)
+  elsif params['resource_type'] == ["Dissertation"]
+    @work = Dissertation.new(id: id)
+  elsif params['resource_type'] == ["Project"]
+    @work = Project.new(id: id)
+  elsif params['resource_type'] == ["Newspaper"]
+    @work = Newspaper.new(id: id)
+  elsif params['resource_type'] == ["Article"]
+    @work = Publication.new(id: id)
+  elsif params['resource_type'] == ["Poster"]
+    @work = Publication.new(id: id)
+  elsif params['resource_type'] == ["Report"]
+    @work = Publication.new(id: id)
+  elsif params['resource_type'] == ["Working Paper"]
+    @work = Publication.new(id: id)
+  elsif params['resource_type'] == ["painting"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["ephemera"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["textiles"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["Empirical Research"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["Award Materials"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["photograph"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["Mixed Media"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["Other"]
+    @work = CreativeWork.new(id: id)
+  elsif params['resource_type'] == ["Creative Works"]
+    @work = CreativeWork.new(id: id)
+  else
+    puts "Unknown type: #{params['resource_type']}"
+  end
+
   # item = Thesis.new(id: ActiveFedora::Noid::Service.new.mint)
-  item = Newspaper.new(id: ActiveFedora::Noid::Service.new.mint)
+  # item = Newspaper.new(id: ActiveFedora::Noid::Service.new.mint)
+
   if params.key?("embargo_release_date")
     # params["visibility"] = "embargo"
     params["visibility_after_embargo"] = "open"
@@ -285,10 +341,10 @@ def createItem (params, depositor, parent = nil)
   else
     params["visibility"] = "open"
   end
-  item.update(params)
-  item.apply_depositor_metadata(depositor.user_key)
-  item.save
-  return item
+  @work.update(params)
+  @work.apply_depositor_metadata(depositor.user_key)
+  @work.save
+  return @work
 end
 
 def getUser(email)
