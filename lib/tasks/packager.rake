@@ -1,6 +1,28 @@
 require 'rubygems'
 require 'zip'
 
+@type_to_work_map = {
+  "Thesis" => "Thesis",
+  "Dissertation" => "Dissertation",
+  "Project" => "Project",
+  "Newspaper" => "Newspaper",
+  "Article" => "Publication",
+  "Poster" => "Publication",
+  "Report" => "Publication",
+  "Preprint" => "Publication",
+  "Technical Report" => "Publication",
+  "Working Paper" => "Publication",
+  "painting" => "CreativeWork",
+  "ephemera" => "CreativeWork",
+  "textiles" => "CreativeWork",
+  "Empirical Research" => "CreativeWork",
+  "Award Materials" => "CreativeWork",
+  "photograph" => "CreativeWork",
+  "Mixed Media" => "CreativeWork",
+  "Other" =>  "CreativeWork",
+  "Creative Works" => "CreativeWork"
+}
+
 @attributes = {
   "dc.contributor" => "contributor",
   "dc.contributor.advisor" => "advisor",
@@ -53,14 +75,6 @@ require 'zip'
   "dc.date.embargountil" => "embargo_release_date", # Thesis
 }
 
-# embargo fields
-# :visibility_during_embargo, :embargo_release_date, :visibility_after_embargo,
-# :visibility_during_embargo: authenticated
-# :visibility: embargo
-
-# This is a variable to use during XML parse testing to avoid submitting new items
-@debugging = FALSE
-
 namespace :packager do
 
   task :aip, [:file, :user_id] =>  [:environment] do |t, args|
@@ -69,14 +83,9 @@ namespace :packager do
     @coverage = "" # for holding the current DSpace COMMUNITY name
     @sponsorship = "" # for holding the current DSpace CoLLECTIOn name
 
-    @unmappedFields = File.open("/tmp/unmappedFields.txt", "w")
-
     @source_file = args[:file] or raise "No source input file provided."
-    #@current_user = User.find_by_user_key(args[:user_id])
 
     @defaultDepositor = User.find_by_user_key(args[:user_id]) # THIS MAY BE UNNECESSARY
-
-    # @uncapturedFields = Hash.new(0) # Hash.new {|h,k| h[k]=[]}
 
     puts "Building Import Package from AIP Export file: " + @source_file
 
@@ -84,12 +93,13 @@ namespace :packager do
 
     @input_dir = File.dirname(@source_file)
     @output_dir = File.join(@input_dir, "unpacked") ## File.basename(@source_file,".zip"))
+    @complete_dir = File.join(@input_dir, "complete") ## File.basename(@source_file,".zip"))
+    @error_dir = File.join(@input_dir, "error") ## File.basename(@source_file,".zip"))
     Dir.mkdir @output_dir unless Dir.exist?(@output_dir)
+    Dir.mkdir @complete_dir unless Dir.exist?(@complete_dir)
+    Dir.mkdir @error_dir unless Dir.exist?(@error_dir)
 
     unzip_package(File.basename(@source_file))
-
-    # puts @uncapturedFields
-    @unmappedFields.close
 
   end
 end
@@ -109,8 +119,14 @@ def unzip_package(zip_file,parentColl = nil)
       end
     end
     if File.exist?(File.join(file_dir, "mets.xml"))
-      File.rename(zpath,@input_dir + "/complete/" + zip_file)
-      return process_mets(File.join(file_dir,"mets.xml"),parentColl)
+      begin
+        processed_mets = process_mets(File.join(file_dir,"mets.xml"),parentColl)
+        File.rename(zpath,File.join(@complete_dir,zip_file))
+      rescue StandardError => e
+        puts e
+        File.rename(zpath,File.join(@error_dir,zip_file))
+      end
+      return processed_mets
     else
       puts "No METS data found in package."
     end
@@ -128,32 +144,23 @@ def process_mets (mets_file,parentColl = nil)
   params = Hash.new {|h,k| h[k]=[]}
 
   if File.exist?(mets_file)
-    # xml_data = Nokogiri::XML.Reader(open(mets_file))
     dom = Nokogiri::XML(File.open(mets_file))
 
     current_type = dom.root.attr("TYPE")
     current_type.slice!("DSpace ")
-    # puts "TYPE = " + current_type
-
-    # puts dom.class
-    # puts dom.xpath("//mets").attr("TYPE")
 
     data = dom.xpath("//dim:dim[@dspaceType='"+current_type+"']/dim:field", 'dim' => 'http://www.dspace.org/xmlns/dspace/dim')
 
     data.each do |element|
      field = element.attr('mdschema') + "." + element.attr('element')
      field = field + "." + element.attr('qualifier') unless element.attr('qualifier').nil?
-     # puts field + " ==> " + element.inner_html
 
      # Due to duplication and ambiguity of output fields from DSpace
      # we need to do some very simplistic field validation and remapping
      case field
      when "dc.creator"
        if element.inner_html.match(/@/)
-         # puts "Looking for User: " + element.inner_html
          depositor = getUser(element.inner_html) unless @debugging
-         # depositor = @defaultDepositor
-         # puts depositor
        end
      else
        # params[@attributes[field]] << element.inner_html.gsub "\r", "\n" if @attributes.has_key? field
@@ -161,8 +168,6 @@ def process_mets (mets_file,parentColl = nil)
        params[@attributes[field]] << element.inner_html if @attributes.has_key? field
        params[@singulars[field]] = element.inner_html if @singulars.has_key? field
      end
-     # @uncapturedFields[field] += 1 unless (@attributes.has_key? field || @singulars.has_key? field)
-     @unmappedFields.write(field) unless @attributes.has_key? field
     end
 
     case dom.root.attr("TYPE")
@@ -171,12 +176,10 @@ def process_mets (mets_file,parentColl = nil)
       puts params
       @coverage = params["title"][0]
       puts "*** COMMUNITY ["+@coverage+"] ***"
-      # puts params
     when "DSpace COLLECTION"
       type = "admin_set"
       @sponsorship = params["title"][0]
       puts "***** COLLECTION ["+@sponsorship+"] *****"
-      # puts params
     when "DSpace ITEM"
       puts "******* ITEM ["+params["handle"][0]+"] *******"
       type = "work"
@@ -184,29 +187,24 @@ def process_mets (mets_file,parentColl = nil)
       # params["coverage"] << @coverage
     end
 
-    # if type == 'collection'
     if type == 'admin_set'
       structData = dom.xpath('//mets:mptr', 'mets' => 'http://www.loc.gov/METS/')
       structData.each do |fileData|
         case fileData.attr('LOCTYPE')
         when "URL"
           unzip_package(fileData.attr('xlink:href'))
-          # puts coverage unless coverage.nil?
-          # puts sponsorship unless sponsorship.nil?
         end
       end
     elsif type == 'work'
-      # item = createItem(params,parentColl)
 
       fileMd5List = dom.xpath("//premis:object", 'premis' => 'http://www.loc.gov/standards/premis')
       fileMd5List.each do |fptr|
         fileChecksum = fptr.at_xpath("premis:objectCharacteristics/premis:fixity/premis:messageDigest", 'premis' => 'http://www.loc.gov/standards/premis').inner_html
         originalFileName = fptr.at_xpath("premis:originalName", 'premis' => 'http://www.loc.gov/standards/premis').inner_html
-        # newFileName = dom.at_xpath("//mets:fileGrp[@USE='THUMBNAIL']/mets:file[@CHECKSUM='"+fileChecksum+"']/mets:FLocat/@xlink:href", 'mets' => 'http://www.loc.gov/METS/', 'xlink' => 'http://www.w3.org/1999/xlink').inner_html
-        # puts newFileName
 
         ########################################################################################################################
         # This block seems incredibly messy and should be cleaned up or moved into some kind of method
+        #
         newFile = dom.at_xpath("//mets:file[@CHECKSUM='"+fileChecksum+"']/mets:FLocat", 'mets' => 'http://www.loc.gov/METS/')
         thumbnailId = nil
         case newFile.parent.parent.attr('USE') # grabbing parent.parent seems off, but it works.
@@ -218,11 +216,9 @@ def process_mets (mets_file,parentColl = nil)
 
           sufiaFile = Hyrax::UploadedFile.create(file: file)
           sufiaFile.save
-          # thumbnailId = sufiaFile.id
 
           uploadedFiles.push(sufiaFile)
           file.close
-          ## params["thumbnail_id"] << sufiaFile.id
         when "TEXT"
         when "ORIGINAL"
           newFileName = newFile.attr('xlink:href')
@@ -241,15 +237,8 @@ def process_mets (mets_file,parentColl = nil)
           # params["rights_statement"] << file.read
           # file.close
         end
-        # puts newFile.class
-        # puts newFile.attr('xlink:href')
-        # puts newFile.parent.parent.attr('USE')
-        # File.rename(@bitstream_dir + "/" + newFileName, @bitstream_dir + "/" + originalFileName)
-        # file = File.open(@bitstream_dir + "/" + originalFileName)
-        # uploadedFiles.push(Sufia::UploadedFile.create(file: file))
+        ###
         ########################################################################################################################
-
-        # sleep(10) # Sleeping 10 seconds while the file upload completes for large files...
 
       end
 
@@ -261,14 +250,7 @@ def process_mets (mets_file,parentColl = nil)
       item = createItem(params,depositor) unless @debugging
       puts "** Attaching Files..."
       workFiles = AttachFilesToWorkJob.perform_now(item,uploadedFiles) unless @debugging
-      # workFiles.save
-      # puts workFiles
-      # item.thumbnail_id = thumbnailId unless thumbnailId.nil?
-      puts "Item id = " + item.id
-      # item.save
-
       return item
-
     end
   end
 end
@@ -295,47 +277,9 @@ def createItem (params, depositor, parent = nil)
   id = ActiveFedora::Noid::Service.new.mint
 
   # Not liking this case statement but will refactor later.
-  if params['resource_type'] == ["Thesis"]
-    @work = Thesis.new(id: id)
-  elsif params['resource_type'] == ["Dissertation"]
-    @work = Dissertation.new(id: id)
-  elsif params['resource_type'] == ["Project"]
-    @work = Project.new(id: id)
-  elsif params['resource_type'] == ["Newspaper"]
-    @work = Newspaper.new(id: id)
-  elsif params['resource_type'] == ["Article"]
-    @work = Publication.new(id: id)
-  elsif params['resource_type'] == ["Poster"]
-    @work = Publication.new(id: id)
-  elsif params['resource_type'] == ["Report"]
-    @work = Publication.new(id: id)
-  elsif params['resource_type'] == ["Preprint"]
-    @work = Publication.new(id: id)
-  elsif params['resource_type'] == ["Technical Report"]
-    @work = Publication.new(id: id)
-  elsif params['resource_type'] == ["Working Paper"]
-    @work = Publication.new(id: id)
-  elsif params['resource_type'] == ["painting"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["ephemera"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["textiles"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["Empirical Research"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["Award Materials"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["photograph"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["Mixed Media"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["Other"]
-    @work = CreativeWork.new(id: id)
-  elsif params['resource_type'] == ["Creative Works"]
-    @work = CreativeWork.new(id: id)
-  else
-    puts "Unknown type: #{params['resource_type']}"
-  end
+  rType = params['resource_type'].first
+  puts "Type: #{rType} - #{@type_to_work_map[rType]}"
+  item = Kernel.const_get(@type_to_work_map[params['resource_type'].first]).new(id: id)
 
   # item = Thesis.new(id: ActiveFedora::Noid::Service.new.mint)
   # item = Newspaper.new(id: ActiveFedora::Noid::Service.new.mint)
@@ -347,14 +291,14 @@ def createItem (params, depositor, parent = nil)
   else
     params["visibility"] = "open"
   end
-  
+
   # add item to default admin set
   params["admin_set_id"] = AdminSet::DEFAULT_ID
 
-  @work.update(params)
-  @work.apply_depositor_metadata(depositor.user_key)
-  @work.save
-  return @work
+  item.update(params)
+  item.apply_depositor_metadata(depositor.user_key)
+  item.save
+  return item
 end
 
 def getUser(email)
