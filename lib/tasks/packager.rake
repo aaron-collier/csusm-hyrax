@@ -85,7 +85,9 @@ namespace :packager do
 
     @source_file = args[:file] or raise "No source input file provided."
 
+    ## TODO: Put these options into a config file
     @defaultDepositor = User.find_by_user_key(args[:user_id]) # THIS MAY BE UNNECESSARY
+    @default_type = 'Thesis'
 
     puts "Building Import Package from AIP Export file: " + @source_file
 
@@ -277,9 +279,11 @@ def createItem (params, depositor, parent = nil)
   id = ActiveFedora::Noid::Service.new.mint
 
   # Not liking this case statement but will refactor later.
-  rType = params['resource_type'].first
+  rType = @default_type
+  rType = params['resource_type'].first unless params['resource_type'].first.nil?
+
   puts "Type: #{rType} - #{@type_to_work_map[rType]}"
-  item = Kernel.const_get(@type_to_work_map[params['resource_type'].first]).new(id: id)
+  item = Kernel.const_get(@type_to_work_map[rType]).new(id: id)
 
   # item = Thesis.new(id: ActiveFedora::Noid::Service.new.mint)
   # item = Newspaper.new(id: ActiveFedora::Noid::Service.new.mint)
@@ -293,7 +297,7 @@ def createItem (params, depositor, parent = nil)
   end
 
   # add item to default admin set
-  params["admin_set_id"] = AdminSet::DEFAULT_ID
+  # params["admin_set_id"] = AdminSet::DEFAULT_ID
 
   item.update(params)
   item.apply_depositor_metadata(depositor.user_key)
