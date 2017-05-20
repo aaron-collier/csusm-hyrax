@@ -67,5 +67,6 @@ module CsuMetadata
 
     property :provenance, predicate: ::RDF::Vocab::DC.provenance
     property :date_accessioned, predicate: ::RDF::Vocab::DC.date, multiple: false
+    property :embargo_terms, predicate: ::RDF::Vocab::DC.description, multiple: false
   end
 end
