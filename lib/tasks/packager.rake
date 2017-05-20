@@ -60,7 +60,6 @@ require 'colorize'
   "dc.type" => "resource_type",
   "dc.type.genre" => "resource_type",
   "dc.contributor.sponsor" => "sponsor",
-  "dc.description.embargoterms" => "embargo_terms",
   "dc.advisor" => "advisor",
   "dc.genre" => "resource_type",
   "dc.contributor.committeemember" => "committee_member",
@@ -75,6 +74,7 @@ require 'colorize'
   "dc.date.accessioned" => "date_accessioned", # Thesis
   "dc.date.embargountil" => "embargo_release_date", # Thesis
   "dc.date.updated" => "date_modified",
+  "dc.description.embargoterms" => "embargo_terms",
 }
 
 namespace :packager do
