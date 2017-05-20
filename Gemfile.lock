@@ -185,6 +185,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.12.2)
+    colorize (0.8.1)
     concurrent-ruby (1.0.5)
     daemons (1.2.4)
     declarative (0.0.9)
@@ -623,6 +624,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   coffee-rails (~> 4.2)
+  colorize
   devise
   devise-guests (~> 0.5)
   fcrepo_wrapper
