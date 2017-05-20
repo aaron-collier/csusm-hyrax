@@ -291,6 +291,10 @@ def createItem (params, depositor, parent = nil)
   else
     params["visibility"] = "open"
   end
+
+  # add item to default admin set
+  params["admin_set_id"] = AdminSet::DEFAULT_ID
+
   item.update(params)
   item.apply_depositor_metadata(depositor.user_key)
   item.save
