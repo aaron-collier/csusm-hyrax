@@ -23,3 +23,5 @@ production:
   # Add roles for users here.
   admin:
     - acollier@calstate.edu
+    - cmitchell@csusm.edu
+    - adyess@csusm.edu
