@@ -52,7 +52,8 @@ end
 gem 'hyrax', github: 'projecthydra-labs/hyrax', branch: 'master'
 gem 'rubyzip'
 gem 'colorize'
-
+# gem 'hydra-packager', :path => "/Users/acollier/Projects/hydra-packager"
+# gem 'rake_gem', path: "/Users/acollier/Projects/rake_gem"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 

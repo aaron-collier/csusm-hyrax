@@ -45,7 +45,7 @@ module CsuMetadata
       index.as :stored_searchable, :facetable
     end
 
-    property :is_part_of, predicate: ::RDF::Vocab::DC.isPartOf do |index|
+    property :is_part_of, predicate: ::RDF::Vocab::DC.relation do |index|
       index.as :stored_searchable, :facetable
     end
 
