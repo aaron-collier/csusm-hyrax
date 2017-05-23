@@ -3,6 +3,7 @@
 class Dissertation < ActiveFedora::Base
   include ::Hyrax::WorkBehavior
   include ::Hyrax::BasicMetadata
+  include ::CsuMetadata
   include ::EtdMetadata
 
   self.indexer = DissertationIndexer
