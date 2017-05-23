@@ -7,5 +7,8 @@ module Hyrax
     include Hyrax::WorksControllerBehavior
     include Hyrax::BreadcrumbsForWorks
     self.curation_concern_type = ::Dissertation
+
+    self.show_presenter = DissertationShowPresenter
+
   end
 end
