@@ -108,7 +108,26 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name("resource_type", :stored_searchable), label: "Resource Type"
     config.add_show_field solr_name("format", :stored_searchable), label: "File Format"
     config.add_show_field solr_name("identifier", :stored_searchable), label: "Identifier"
-
+    config.add_show_field solr_name("date_available", :stored_searchable), label: "Date Available"
+    config.add_show_field solr_name("date_copyright", :stored_searchable), label: "Date Copyright"
+    config.add_show_field solr_name("date_issued", :stored_searchable), label: "Date Issued"
+    config.add_show_field solr_name("date_submitted", :stored_searchable), label: "Date Submitted"
+    config.add_show_field solr_name("geographical_area", :stored_searchable), label: "Geo Area"
+    config.add_show_field solr_name("handle", :stored_searchable), label: "Handle"
+    config.add_show_field solr_name("is_part_of", :stored_searchable), label: "Part Of"
+    config.add_show_field solr_name("sponsor", :stored_searchable), label: "Sponsor"
+    config.add_show_field solr_name("statement_of_responsibility", :stored_searchable), label: "Statement of Responsibility"
+    config.add_show_field solr_name("time_period", :stored_searchable), label: "Time Period"
+    config.add_show_field solr_name("extent", :stored_searchable), label: "Extent"
+    config.add_show_field solr_name("provenance", :stored_searchable), label: "Provenance"
+    config.add_show_field solr_name("date_accessioned", :stored_searchable), label: "Date Accessioned"
+    config.add_show_field solr_name("embargo_terms", :stored_searchable), label: "Embargo Terms"
+    config.add_show_field solr_name("college", :stored_searchable), label: "College"
+    config.add_show_field solr_name("department", :stored_searchable), label: "Department"
+    config.add_show_field solr_name("university", :stored_searchable), label: "University"
+    config.add_show_field solr_name("degree_level", :stored_searchable), label: "Degree Level"
+    config.add_show_field solr_name("degree_name", :stored_searchable), label: "Degree Name"
+    
     # "fielded" search configuration. Used by pulldown among other places.
     # For supported keys in hash, see rdoc for Blacklight::SearchFields
     #
