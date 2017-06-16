@@ -1,0 +1,35 @@
+terms:
+  - id: business
+    term: Business Administration
+  - id: education
+    term: Education
+  - id: kinesiology
+    term: Kinesiology
+  - id: nursing
+    term: Nursing
+  - id: public_health
+    term: Public Health
+  - id: social_work
+    term: Social Work
+  - id: speech
+    term: Speech-Language Pathology
+  - id: history
+    term: History
+  - id: literature
+    term: Literature and Writing
+  - id: psychology
+    term: Psychological Science
+  - id: sociology
+    term: Sociological Practice
+  - id: spanish
+    term: Spanish
+  - id: biology
+    term: Biological Science
+  - id: biotech
+    term: Biotechnology
+  - id: computer_science
+    term: Computer Science
+  - id: cybersecurity
+    term: Cybersecurity
+  - id: math
+    term: Mathematics

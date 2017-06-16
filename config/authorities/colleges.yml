@@ -1,0 +1,9 @@
+terms:
+  - id: business
+    term: College of Business Administration
+  - id: education
+    term: College of Education, Health and Human Services
+  - id: humanities
+    term: College of Humanities, Arts, and Behavioral and Social Sciences
+  - id: science
+    term: College of Science and Mathematics

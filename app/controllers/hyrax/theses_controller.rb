@@ -8,6 +8,7 @@ module Hyrax
     include Hyrax::BreadcrumbsForWorks
     self.curation_concern_type = ::Thesis
 
-    self.show_presenter = ThesisShowPresenter
+    # Use this line if you want to use a custom presenter
+    self.show_presenter = Hyrax::ThesisPresenter
   end
 end
