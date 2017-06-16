@@ -3,7 +3,8 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.feature 'Create a Newspaper', js: true do
+# NOTE: If you generated more than one work, you have to set "js: true"
+RSpec.feature 'Create a Newspaper', js: false do
   context 'a logged in user' do
     let(:user_attributes) do
       { email: 'test@example.com' }
@@ -13,6 +14,7 @@ RSpec.feature 'Create a Newspaper', js: true do
     end
 
     before do
+      AdminSet.find_or_create_default_admin_set_id
       login_as user
     end
 
@@ -20,8 +22,12 @@ RSpec.feature 'Create a Newspaper', js: true do
       visit '/dashboard'
       click_link "Works"
       click_link "Add new work"
-      choose "payload_concern", option: "Newspaper"
-      click_button "Create work"
+
+      # If you generate more than one work uncomment these lines
+      # choose "payload_concern", option: "Newspaper"
+      # click_button "Create work"
+
+      expect(page).to have_content "Add New Newspaper"
     end
   end
 end

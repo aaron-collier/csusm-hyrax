@@ -1,9 +1,12 @@
 # Generated via
-#  `rails generate hyrax:work CreativeWork`
+#  `rails generate hyrax:work CreateWork`
 class CreativeWork < ActiveFedora::Base
   include ::Hyrax::WorkBehavior
-  include ::Hyrax::BasicMetadata
+  # This must come after the WorkBehavior because it finalizes the metadata
+  # schema (by adding accepts_nested_attributes)
   include ::CsuMetadata
+  
+  include ::Hyrax::BasicMetadata
 
   self.indexer = CreativeWorkIndexer
   # Change this to restrict which works can be added as a child.

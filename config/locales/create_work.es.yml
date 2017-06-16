@@ -1,0 +1,10 @@
+es:
+  hyrax:
+    icons:
+      create_work:     'fa fa-file-text-o'
+    select_type:
+      create_work:
+        # TODO: translate `human_name` into Spanish
+        name:               "Create Work"
+        # TODO: translate `human_name` into Spanish
+        description:        "Create work trabajos"

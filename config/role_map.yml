@@ -1,6 +1,6 @@
 development:
-  admin:
-    - acollier@calstate.edu
+  archivist:
+    - archivist1@example.com
 
 test:
   archivist:
@@ -21,7 +21,3 @@ test:
 
 production:
   # Add roles for users here.
-  admin:
-    - acollier@calstate.edu
-    - cmitchell@csusm.edu
-    - adyess@csusm.edu

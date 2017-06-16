@@ -2,8 +2,11 @@
 #  `rails generate hyrax:work Publication`
 class Publication < ActiveFedora::Base
   include ::Hyrax::WorkBehavior
-  include ::Hyrax::BasicMetadata
+  # This must come after the WorkBehavior because it finalizes the metadata
+  # schema (by adding accepts_nested_attributes)
   include ::CsuMetadata
+  
+  include ::Hyrax::BasicMetadata
 
   self.indexer = PublicationIndexer
   # Change this to restrict which works can be added as a child.

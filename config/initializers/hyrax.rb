@@ -1,20 +1,13 @@
 Hyrax.config do |config|
   # Injected via `rails g hyrax:work Thesis`
   config.register_curation_concern :thesis
-  # Injected via `rails g hyrax:work FacultyWork`
-  # config.register_curation_concern :faculty_work
   # Injected via `rails g hyrax:work Newspaper`
   config.register_curation_concern :newspaper
+  # Injected via `rails g hyrax:work CreateWork`
+  config.register_curation_concern :creative_work
   # Injected via `rails g hyrax:work Publication`
   config.register_curation_concern :publication
-  # Injected via `rails g hyrax:work Archive`
-  config.register_curation_concern :archive
-  # Injected via `rails g hyrax:work CreativeWork`
-  config.register_curation_concern :creative_work
-  # Injected via `rails g hyrax:work Dissertation`
-  config.register_curation_concern :dissertation
-  # Injected via `rails g hyrax:work Project`
-  config.register_curation_concern :project
+
   # Register roles that are expected by your implementation.
   # @see Hyrax::RoleRegistry for additional details.
   # @note there are magical roles as defined in Hyrax::RoleRegistry::MAGIC_ROLES

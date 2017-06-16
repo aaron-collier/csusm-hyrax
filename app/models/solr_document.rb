@@ -101,4 +101,8 @@ class SolrDocument
   def statement_of_responsibility
     self[Solrizer.solr_name('statement_of_responsibility')]
   end
+
+  # Do content negotiation for AF models. 
+
+  use_extension( Hydra::ContentNegotiation )
 end

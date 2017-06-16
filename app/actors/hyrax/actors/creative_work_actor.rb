@@ -1,5 +1,5 @@
 # Generated via
-#  `rails generate hyrax:work CreativeWork`
+#  `rails generate hyrax:work CreateWork`
 module Hyrax
   module Actors
     class CreativeWorkActor < Hyrax::Actors::BaseActor
